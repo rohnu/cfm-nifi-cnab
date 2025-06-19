@@ -33,3 +33,14 @@ az aks create \
 
 # Get kubeconfig for kubectl
 az aks get-credentials --resource-group myResourceGroup --name myAKSCluster
+
+
+This repository contains a [CNAB](https://cnab.io/) bundle to deploy **Cloudera Flow Management (NiFi)** on **Azure Kubernetes Service (AKS)** using [Duffle](https://github.com/deislabs/duffle).
+
+---
+
+##  2. Install Duffle and Initialize
+
+```bash
+brew install duffle
+duffle init
