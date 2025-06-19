@@ -1,46 +1,130 @@
-# Cloudera Flow Management - Kubernetes Operator on Kubernetes
+# 🌐 Cloudera CFM NiFi on AKS with CNAB (Duffle)
 
-# Cloudera CFM NiFi Deployment on AKS using CNAB (Duffle)
-
-This project demonstrates how to package and deploy Cloudera Flow Management (CFM) NiFi on an Azure Kubernetes Service (AKS) cluster using CNAB and [Duffle](https://github.com/deislabs/duffle).
+This guide provides a complete workflow for deploying **Cloudera Flow Management (CFM) NiFi** on **Azure Kubernetes Service (AKS)** using the **CNAB** packaging format via **Duffle**.
 
 ---
 
-## Prerequisites
-
-- Azure CLI installed and authenticated
-- AKS Cluster created
-- `kubectl` configured
-- `helm` installed
-- `duffle` installed (`brew install duffle`)
-- Cloudera credentials (for Docker registry and license)
+## 📋 Prerequisites
+- Azure CLI installed
+- Valid Cloudera license file
+- Cloudera Docker registry credentials (username/password)
+- macOS system with:
+  - Docker
+  - Helm 3
+  - kubectl
+  - duffle
 
 ---
 
-##  1. Setup Azure Kubernetes Cluster (AKS)
+## ☁️ Step 1: Create an AKS Cluster
 
-```bash
 az login
 az account set --subscription <your-subscription-id>
 
-# Create AKS cluster (adjust name and node count as needed)
-az aks create \
-  --resource-group myResourceGroup \
-  --name myAKSCluster \
-  --node-count 1 \
-  --enable-addons monitoring \
-  --generate-ssh-keys
+az aks create
+--resource-group myResourceGroup
+--name myAKSCluster
+--node-count 1
+--enable-addons monitoring
+--generate-ssh-keys
 
-# Get kubeconfig for kubectl
-az aks get-credentials --resource-group myResourceGroup --name myAKSCluster
+az aks get-credentials
+--resource-group myResourceGroup
+--name myAKSCluster
 
-
-This repository contains a [CNAB](https://cnab.io/) bundle to deploy **Cloudera Flow Management (NiFi)** on **Azure Kubernetes Service (AKS)** using [Duffle](https://github.com/deislabs/duffle).
 
 ---
 
-##  2. Install Duffle and Initialize
+## 🧰 Step 2: Install Duffle and Initialize
 
-```bash
+
 brew install duffle
 duffle init
+
+Creates:
+- `~/.duffle/bundles`
+- `~/.duffle/credentials`
+- `~/.duffle/claims`
+
+---
+
+## 📦 Step 3: Prepare CNAB Bundle
+Bundle structure:
+├── cfm-operator-k8s/duffle.json
+├── cnab/Dockerfile
+├── cnab/app.sh
+├── cnab/ca-cluster-issuer.yaml
+├── cnab/nifi-cr.yaml
+
+Build the bundle:
+
+duffle build
+
+**Output:** `Successfully built bundle cfm-nifi:1.0.0`
+
+---
+
+## 🔐 Step 4: Create Duffle Credentials
+Generate credentials:
+
+Option 1: 
+
+duffle creds generate kube-creds cfm-nifi:1.0.0
+
+? Choose a source for "kubeconfig" file path
+? Enter a value for "kubeconfig"  /Users/rohnu/.kube/config
+? Choose a source for "licenseFile" file path
+? Enter a value for "licenseFile" /Users/rohnu/Downloads/cloudera_license.txt
+? Choose a source for "nifiPass" environment variable
+? Enter a value for "nifiPass" NIFI_PASS
+? Choose a source for "nifiUser" environment variable
+? Enter a value for "nifiUser" NIFI_USER
+? Choose a source for "registryPass" environment variable
+? Enter a value for "registryPass" REGISTRY_PASS
+? Choose a source for "registryUser" environment variable
+? Enter a value for "registryUser" REGISTRY_USER
+hw14039:cfm-kuberenetes-operator rganeshbabu$
+
+
+Option2
+duffle creds generate kube-creds -f ~/.duffle/bundles/db1d0de9a18e09b71d98feedbb46f233b578c5fd 
+? Choose a source for "kubeconfig" file path
+? Enter a value for "kubeconfig" /Users/rohnu/.kube/config
+? Choose a source for "licenseFile" file path
+? Enter a value for "licenseFile" /Users/rohnu/Downloads/cloudera_license.txtramprasad_ohnu_ganeshbabu_2025_2026_cloudera_license.txt
+? Choose a source for "nifiPass" environment variable
+? Enter a value for "nifiPass" NIFI_PASS
+? Choose a source for "nifiUser" environment variable
+? Enter a value for "nifiUser" NIFI_USER
+? Choose a source for "registryPass" environment variable
+? Enter a value for "registryPass" REGISTRY_PASS
+? Choose a source for "registryUser" environment variable
+? Enter a value for "registryUser" REGISTRY_USER
+
+Option 3
+                                      
+kube-creds vi /Users/rohnu/.duffle/credentials/kube-creds.yaml
+hw14039:azure_cnab rganeshbabu$ cat /Users/rganeshbabu/.duffle/credentials/kube-creds.yaml
+name: kube-creds
+credentials:
+- name: kubeconfig
+  source:
+    value: /Users/rohnu/.kube/config
+- name: licenseFile
+  source:
+    value: /Users/rohnu/Downloads/cloudera_license.txtramprasad_ohnu_ganeshbabu_2025_2026_cloudera_license.txt
+- name: nifiPass
+  source:
+    env: NIFI_PASS
+- name: nifiUser
+  source:
+    env: NIFI_USER
+- name: registryPass
+  source:
+    env: REGISTRY_PASS
+- name: registryUser
+  source:
+    env: REGISTRY_USER
+
+
+
