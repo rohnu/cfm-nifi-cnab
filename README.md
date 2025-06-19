@@ -139,19 +139,17 @@ This runs `app.sh` which:
 
 ## ⏳ Step 7: Wait for NiFi Service to Become Available
 
-Use this command to check:
+You will see this output like below.
 
 ```bash
-kubectl get svc mynifi-web -n my-nifi -o jsonpath='{.status.loadBalancer.ingress[0].ip}'
+[INFO] NiFi service not ready, waiting 10s...
+[INFO] NiFi is accessible at:
+https://4.255.110.167:8443
 ```
 
-Or add a wait loop in `app.sh`:
-
 ```bash
-echo "[INFO] Waiting for mynifi-web service to be available..."
-until kubectl get svc mynifi-web -n my-nifi -o jsonpath='{.status.loadBalancer.ingress[0].ip}' 2>/dev/null; do
-  sleep 5
-done
+kubectl get svc mynifi-web -n my-nifi -o jsonpath='{.status.loadBalancer.ingress[0].ip}' 2>/dev/null; do
+
 ```
 
 ---
