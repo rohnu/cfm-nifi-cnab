@@ -1,0 +1,70 @@
+apiVersion: cfm.cloudera.com/v1alpha1
+kind: Nifi
+metadata:
+  name: mynifi
+  namespace: my-nifi
+spec:
+  replicas: 3
+  nifiVersion: 1.0.0
+  image:
+    repository: container.repository.cloudera.com/cloudera/cfm-nifi-k8s
+    tag: 2.10.0-b134-nifi_1.28.1.2.3.15.0-29
+    pullSecret: docker-registry
+    pullPolicy: IfNotPresent
+  tiniImage:
+    repository: container.repository.cloudera.com/cloudera/cfm-tini
+    tag: 2.10.0-b134
+    pullSecret: docker-registry
+    pullPolicy: IfNotPresent
+  persistence:
+    size: 1Gi
+    contentRepo:
+      size: 1Gi
+    flowfileRepo:
+      size: 1Gi
+    provenanceRepo:
+      size: 2Gi
+    data: {}
+  security:
+    initialAdminIdentity: admin
+    nodeCertGen:
+      issuerRef:
+        name: nifi-cluster-ca-issuer
+        kind: ClusterIssuer
+    singleUserAuth:
+      enabled: true
+      credentialsSecretName: nifi-cred-secret
+  hostName: mynifi.my-nifi.svc.cluster.local
+  uiConnection:
+    type: Service
+    annotations:
+      nginx.ingress.kubernetes.io/affinity: cookie
+      nginx.ingress.kubernetes.io/affinity-mode: persistent
+      nginx.ingress.kubernetes.io/backend-protocol: HTTPS
+      nginx.ingress.kubernetes.io/ssl-passthrough: "true"
+      nginx.ingress.kubernetes.io/ssl-redirect: "true"
+  resources:
+    nifi:
+      requests:
+        cpu: "1"
+        memory: 2Gi
+      limits:
+        cpu: "4"
+        memory: 4Gi
+    log:
+      requests:
+        cpu: 50m
+        memory: 128Mi
+  configOverride:
+    nifiProperties:
+      upsert:
+        nifi.cluster.load.balance.connections.per.node: "1"
+        nifi.cluster.load.balance.max.thread.count: "4"
+        nifi.cluster.node.connection.timeout: "60 secs"
+        nifi.cluster.node.read.timeout: "60 secs"
+    bootstrapConf:
+      upsert:
+        java.arg.2: -Xms2g
+        java.arg.3: -Xmx2g
+        java.arg.13: -XX:+UseConcMarkSweepGC
+
