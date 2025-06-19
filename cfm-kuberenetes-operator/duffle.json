@@ -1,0 +1,58 @@
+{
+  "name": "cfm-nifi",
+  "version": "1.0.0",
+  "schemaVersion": "v1.0.0",
+  "description": "Cloudera CFM NiFi deployment with cert-manager and TLS on Kubernetes",
+  "maintainers": [
+    {
+      "name": "Ramprasad Ohnu Ganeshbabu",
+      "email": "rganeshbabu@cloudera.com"
+    }
+  ],
+  "invocationImages": {
+    "cnab": {
+      "name": "cnab",
+      "builder": "docker",
+      "configuration": {
+        "registry": "docker.io"
+      }
+    }
+  },
+  "definitions": {
+    "replicaCount": {
+      "type": "integer",
+      "default": 3
+    },
+    "nifiUrl": {
+      "type": "string"
+    }
+  },
+  "parameters": {
+    "replicas": {
+      "definition": "replicaCount",
+      "destination": {
+        "env": "NIFI_REPLICAS"
+      }
+    }
+  },
+  "credentials": {
+    "kubeconfig": {
+      "path": "/root/.kube/config"
+    },
+    "registryUser": {
+      "env": "REGISTRY_USER"
+    },
+    "registryPass": {
+      "env": "REGISTRY_PASS"
+    },
+    "licenseFile": {
+      "path": "/cnab/app/license.txt"
+    },
+    "nifiUser": {
+      "env": "NIFI_USER"
+    },
+    "nifiPass": {
+      "env": "NIFI_PASS"
+    }
+  }
+}
