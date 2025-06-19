@@ -33,11 +33,3 @@ az aks create \
 
 # Get kubeconfig for kubectl
 az aks get-credentials --resource-group myResourceGroup --name myAKSCluster
-
----
-
-##  2. Install and Initialize Duffle
-
-```brew install duffle
-duffle init
-Creates the ~/.duffle config directory.
